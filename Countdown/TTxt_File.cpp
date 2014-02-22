@@ -13,7 +13,7 @@ TTxt_File::TTxt_File(std::string exe_path, std::string file_offset)
 	file_path = "NULL";
 	switch(this->Check_file_exists())
 	{	case false:
-		Cmd_dashdash::Create_text_file(exe_path, file_offset);
+		Create_text_file(exe_path, file_offset);
 		case true:
 		Load_file(exe_path.append(file_offset));
 	}
@@ -38,7 +38,7 @@ void TTxt_File::Process_input(std::string line, unsigned int insert_location)
 {	std::string * input_line;
 	input_line = new std::string(line);
 	transform (input_line->begin (), input_line->end (), input_line->begin (), toupper);
-	text_index.emplace((text_index.begin() + insert_location), line.append("\n"));
+	text_index.emplace((text_index.begin() + insert_location), line);
 	file_index++;
 	delete input_line;
 }
@@ -47,7 +47,7 @@ void TTxt_File::Process_input(std::string line)
 {	std::string * input_line;
 	input_line = new std::string(line);
 	transform (input_line->begin (), input_line->end (), input_line->begin (), toupper);	
-	text_index.emplace_back(line.append("\n"));
+	text_index.emplace_back(line);
 	file_index++;
 	delete input_line;
 }	
@@ -74,7 +74,7 @@ void TTxt_File::Overwrite_data(std::string i, unsigned int index)
 	}
 }
 
-void TTxt_File::Insert_line_breaks(unsigned int n)
+void TTxt_File::Insert_blank_lines(unsigned int n)
 {	for (unsigned int cy = 0; cy != n; ++cy)
 	{	Process_input("");
 	}
@@ -106,7 +106,7 @@ std::string TTxt_File::Access_data(unsigned int index)
 
 void TTxt_File::Output_Data()
 {	for(unsigned int cy = 0; cy != text_index.size(); ++cy)
-	{	cout << cy << "	" << text_index.at(cy);
+	{	cout << cy << "	" << text_index.at(cy) << endl;
 	}
 }
 
@@ -138,7 +138,7 @@ bool TTxt_File::Save_file(std::string file_path, bool selfdestruct)
 			ofstream file (file_path);
 			if (file.is_open())
 			{	for (std::vector<std::string>::iterator it = text_index.begin(); it != text_index.end(); ++it)
-				{	file << ((*it));	
+				{	file << ((*it).append("\n"));	
 				}
 			}
 			file.close();
@@ -159,4 +159,32 @@ bool TTxt_File::Save_file(std::string file_path, bool selfdestruct)
 TTxt_File::~TTxt_File(void)
 {	text_index.clear();
 	is_read = false;
+}
+
+
+// Non-member function to remove the Cmd_dashdash dependency ///////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Create_text_file(std::string directory, std::string file_path)
+{	switch(Check_file_exists(directory.append(file_path)))	// Please note, your input has to be complete, including the .txt file extension
+	{	case true:
+		return false;
+		case false:
+		ofstream file (directory);
+		if (file.is_open())
+		{	file << "//File_Parse generated file created on " << Cmd_dashdash::GetDTI(); 
+		}
+		file.close();
+		return true;
+	}
+	return false;
+}
+
+bool Check_file_exists(std::string file_path)
+{	bool Check_return = false;
+	ifstream file (file_path);
+	if(file.is_open())
+	{	Check_return = true;
+	}	file.close();
+	return Check_return;
 }

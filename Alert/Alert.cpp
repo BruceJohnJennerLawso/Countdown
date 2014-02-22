@@ -33,25 +33,21 @@ void Runprog()
 }
 
 void Alert::Alarm_Clock::Fx()
-{	int Timerlength = Cmd_plusplus::Input_value<unsigned int>("Length of timer: ");
-	TTxt_File Args(Cmd_plusplus::Get_directory(), "\\Countdown\\TimerArgs.txt");
-	Cmd_plusplus::Print_line(std::to_string(static_cast<long double>(Timerlength)));
-	Args.Overwrite_data((std::to_string(static_cast<long double>(Timerlength))).append("\n"), 2);
-	Args.Overwrite_data("Alarm10.ogg", 3);
+{	unsigned int Timerlength = Cmd_plusplus::Input_value<unsigned int>("Length of timer: ");
+	TTxt_File Args(Cmd_plusplus::Get_directory(), "\\Countdown\\CountdownArgs.txt");
+	Args.Overwrite_data((std::to_string(static_cast<long double>(Timerlength))), 1);
+	Args.Overwrite_data("Alarm10.ogg", 2);
 	Args.Save_file(Args.Get_path(), true);
 	WinExec((Cmd_plusplus::Get_directory()).append("\\Countdown\\Countdown.exe").c_str(),SW_SHOW);
-	Cmd_plusplus::Newline(2);
 }
 
 void Alert::Timer::Fx()
-{	int Timerlength = Cmd_plusplus::Input_value<unsigned int>("Length of timer: ");
-	TTxt_File Args(Cmd_plusplus::Get_directory(), "\\Countdown\\TimerArgs.txt");
-	Cmd_plusplus::Print_line(std::to_string(static_cast<long double>(Timerlength)));
-	Args.Overwrite_data((std::to_string(static_cast<long double>(Timerlength))).append("\n"), 2);
-	Args.Overwrite_data("ElapsedTimer.ogg", 3);
+{	unsigned int Timerlength = Cmd_plusplus::Input_value<unsigned int>("Length of timer: ");
+	TTxt_File Args(Cmd_plusplus::Get_directory(), "\\Countdown\\CountdownArgs.txt");
+	Args.Overwrite_data((std::to_string(static_cast<long double>(Timerlength))), 1);
+	Args.Overwrite_data("ElapsedTimer.ogg", 2);
 	Args.Save_file(Args.Get_path(), true);
 	WinExec((Cmd_plusplus::Get_directory()).append("\\Countdown\\Countdown.exe").c_str(),SW_SHOW);
-	Cmd_plusplus::Newline(2);
 }
 
 

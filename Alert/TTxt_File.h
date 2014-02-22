@@ -13,7 +13,7 @@ class TTxt_File :public CFileParse
 	void Insert_data(std::vector<std::string> i);
 	void Insert_data(std::string i);
 	void Overwrite_data(std::string i, unsigned int index);
-	void Insert_line_breaks(unsigned int n);
+	void Insert_blank_lines(unsigned int n);
 	void Remove_line(unsigned int index);
 	std::string Get_path();
 	unsigned int Get_file_index();
@@ -29,5 +29,9 @@ class TTxt_File :public CFileParse
 	public:
 	~TTxt_File(void);
 };
+
+bool Create_text_file(std::string directory, std::string file_path);
+bool Check_file_exists(std::string file_path);
+unsigned int GetDTI ();
 
 
