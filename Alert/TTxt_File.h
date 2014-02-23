@@ -12,7 +12,7 @@ class TTxt_File :public CFileParse
 	void Output_Data();
 	void Insert_data(std::vector<std::string> i);
 	void Insert_data(std::string i);
-	void Overwrite_data(std::string i, unsigned int index);
+	bool Overwrite_data(std::string i, unsigned int index);
 	void Insert_blank_lines(unsigned int n);
 	void Remove_line(unsigned int index);
 	std::string Get_path();

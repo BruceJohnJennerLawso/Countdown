@@ -25,9 +25,19 @@ namespace Alert
 		Alarm_Clock(std::string ina){FxId = ina;}
 		void Fx();
 	};
+	class Set_Alarm_Sound: public CProgFx
+	{	public:
+		Set_Alarm_Sound(std::string ina){FxId = ina;}
+		void Fx();
+	};
 	class Timer: public CProgFx
 	{	public:
 		Timer(std::string ina){FxId = ina;}
+		void Fx();
+	};
+	class Set_Timer_Sound: public CProgFx
+	{	public:
+		Set_Timer_Sound(std::string ina){FxId = ina;}
 		void Fx();
 	};
 	class Check_Time: public CProgFx
@@ -35,7 +45,13 @@ namespace Alert
 		Check_Time(std::string ina){FxId = ina;}
 		void Fx();
 	};
-	CProgFx * Arm_Alarm, * Arm_Timer, * Output_Time;
+	class Set_Colour: public CProgFx
+	{	public:
+		Set_Colour(std::string ina){FxId = ina;}
+		void Fx();
+	};
+	unsigned int Get_time_as_hhmmss();
+	CProgFx * Arm_Alarm, * Arm_Timer, * Output_Time, * Set_Alarm_Audio, * Set_Timer_Audio, * Colour_Config;
 
 	std::unique_ptr<TTxt_File> Alarm_list(new TTxt_File(Cmd_plusplus::Get_directory(), "\\Data\\Alarm_list.txt"));
 	//TTxt_File * Alarm_list;
@@ -45,6 +61,9 @@ void InitFxObjects()
 {	Alert::Arm_Alarm = new Alert::Alarm_Clock("SET");
 	Alert::Output_Time = new Alert::Check_Time("TIME");
 	Alert::Arm_Timer = new Alert::Timer("SET");
+	Alert::Set_Alarm_Audio =  new Alert::Set_Alarm_Sound("SOUND");
+	Alert::Set_Timer_Audio =  new Alert::Set_Timer_Sound("SOUND");
+	Alert::Colour_Config = new Alert::Set_Colour("COLOUR");
 	// cleaned up when TCmdMenu gets destroyed, no need for manual deallocation :)
 }
 

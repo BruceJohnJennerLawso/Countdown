@@ -1,11 +1,13 @@
 #include "TTxt_File.h"
 
 
+
 namespace countdown
 {	unsigned int window_height, window_width;
 	bool Timer_finished;
 	bool Alarm_finished;
 	bool status_check;
+	sf::Color  Countdown_colour;
 };
 
 namespace Timer

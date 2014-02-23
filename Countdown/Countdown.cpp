@@ -5,6 +5,7 @@
 #include <SFML/Audio.hpp>
 #include <iostream>
 #include <time.h>
+#include <algorithm>
 #include "Time_Structure.h"
 #include "Program_Elements.h"
 
@@ -12,29 +13,92 @@
 int Countdown_clock(unsigned int countdown);
 void Timer_Alarm();
 void Init_program_stuff(unsigned int countdown);
+void Set_colour(std::string colour);
+std::string Play_path_at_mode(std::string mode, std::string Alarm_path, std::string Timer_path);
 int Load_program_assets();
 
 int main()
 {	// Resume the coutdown!!!
-	TTxt_File Args(Cmd_dashdash::Get_directory(), "\\Countdown\\CountdownArgs.txt");
-	unsigned int number = std::stoi(Args.Access_data(1));
-	Alarm::Play_path = Args.Access_data(2);
-	Args.~TTxt_File();
-	return Countdown_clock(number);
+	TTxt_File Arguments(Cmd_dashdash::Get_directory(), "\\Countdown\\CountdownArguments.cfg");
+	if(Arguments.Get_file_index() < 5)
+	{	Cmd_dashdash::Log_exception("Error 3: Incomplete Config file.");
+		return 3;
+	}
+	else
+	{	unsigned int number = std::stoi(Arguments.Access_data(1));
+		std::string mode = Arguments.Access_data(2);
+		Alarm::Play_path = Play_path_at_mode(mode, Arguments.Access_data(4), Arguments.Access_data(3));
+		std::string colour = Arguments.Access_data(5);
+		Arguments.~TTxt_File();
+		Set_colour(colour);
+		return Countdown_clock(number);
+	}
 }	// Was yo cooler than yall, due to being a wet bag now, so they lit this candle & went to space today. Dawg.
 
+std::string Play_path_at_mode(std::string mode, std::string Alarm_path, std::string Timer_path)
+{	std::transform(mode.begin (), mode.end (), mode.begin (), toupper);
+	if(mode == "ALARM")
+	{	return Alarm_path;
+	}
+	else if(mode == "TIMER")
+	{	return Timer_path;
+	}
+}
+
+void Set_colour(std::string colour)
+{	std::transform(colour.begin (), colour.end (), colour.begin (), toupper);
+	if(colour == "BLUE")
+	{	countdown::Countdown_colour = sf::Color::Blue;
+	}
+	else if(colour == "GREEN")
+	{	countdown::Countdown_colour = sf::Color::Green;
+	}
+	else if(colour == "MAGENTA")
+	{	countdown::Countdown_colour = sf::Color::Magenta;
+	}
+	else if(colour == "CYAN")
+	{	countdown::Countdown_colour = sf::Color::Cyan;
+	}
+	else if(colour == "RED")
+	{	countdown::Countdown_colour = sf::Color::Red;
+	}
+	else if(colour == "YELLOW")
+	{	countdown::Countdown_colour = sf::Color::Yellow;
+	}
+}
+
 int Load_program_assets()
-{	if (!(Timer::Display_font.loadFromFile(Cmd_dashdash::Get_directory().append("\\Data\\Haettenschweiler.ttf"))))
+{	std::string Offset = "\\Data\\Assets\\";
+	if(countdown::Countdown_colour == sf::Color::Green)
+	{	Offset.append("Green\\");
+	}
+	else if(countdown::Countdown_colour == sf::Color::Blue)
+	{	Offset.append("Blue\\");
+	}
+	else if(countdown::Countdown_colour == sf::Color::Cyan)
+	{	Offset.append("Cyan\\");
+	}
+	else if(countdown::Countdown_colour == sf::Color::Magenta)
+	{	Offset.append("Magenta\\");
+	}
+	else if(countdown::Countdown_colour == sf::Color::Red)
+	{	Offset.append("Red\\");
+	}
+	else if(countdown::Countdown_colour == sf::Color::Yellow)
+	{	Offset.append("Yellow\\");
+	}
+
+	if (!(Timer::Display_font.loadFromFile(Cmd_dashdash::Get_directory().append("\\Data\\Haettenschweiler.ttf"))))
 	{	std::cout << "Unable to load font" << std::endl;
-		Cmd_dashdash::Log_exception("Unable to load font");
+		Cmd_dashdash::Log_exception("Error 1: Unable to load font");
 		return 1;
 	}
 	else
-	{	if ((!(Go_button::Go_button_tex_active.loadFromFile(Cmd_dashdash::Get_directory().append("\\Data\\Go_button_activated.png"))))||
-			((!(Power_button::Power_button_tex.loadFromFile(Cmd_dashdash::Get_directory().append("\\Data\\Power_button_activated.png")))))||
-			(!(Go_button::Go_button_tex_inactive.loadFromFile(Cmd_dashdash::Get_directory().append("\\Data\\Go_button_inactive.png")))))
-		{	std::cout << "Unable to load texture" << std::endl;
-			Cmd_dashdash::Log_exception("Unable to load button texture");
+	{	if ((!(Go_button::Go_button_tex_active.loadFromFile(Cmd_dashdash::Get_directory().append(Offset + ("Go_button_activated.png")))))||
+			((!(Power_button::Power_button_tex.loadFromFile(Cmd_dashdash::Get_directory().append(Offset + ("Power_button_activated.png"))))))||
+			(!(Go_button::Go_button_tex_inactive.loadFromFile(Cmd_dashdash::Get_directory().append(Offset + ("Go_button_inactive.png"))))))
+		{	std::cout << "Unable to load texture at" << Offset << std::endl;
+			Cmd_dashdash::Log_exception(("Error 2: Unable to load button texture"));
 			return 2;
 		}
 		else
@@ -51,7 +115,7 @@ void Init_program_stuff(unsigned int countdown)
 		Timer::Current_time.Set_Time(countdown);		
 		Timer::Display_text.setFont(Timer::Display_font);
 		Timer::Display_text.setCharacterSize(80);
-		Timer::Display_text.setColor(sf::Color::Green);
+		Timer::Display_text.setColor(countdown::Countdown_colour);
 		Timer::Display_text.setString(Timer::Current_time.Get_time_as_string());
 		Timer::Display_text.setPosition(0, -20);
 		Go_button::Go_button_sprite.setTexture(Go_button::Go_button_tex_active);

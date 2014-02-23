@@ -62,16 +62,17 @@ void TTxt_File::Insert_data(std::string i)
 {	Process_input(i);
 }
 
-void TTxt_File::Overwrite_data(std::string i, unsigned int index)
+bool TTxt_File::Overwrite_data(std::string i, unsigned int index)
 {	unsigned int cy = 0;
 	for(std::vector<std::string>::iterator it = text_index.begin(); it != text_index.end(); ++it)
 	{	if (cy == index)
 		{	(it)->assign(i);
+			return true;
 		}
 		else
 		{	++cy;
 		}
-	}
+	}	return false;
 }
 
 void TTxt_File::Insert_blank_lines(unsigned int n)
