@@ -1,36 +1,42 @@
 #include "TTxt_File.h"
+#include "SFML_Button.h"
 
 
 
 namespace countdown
-{	unsigned int window_height, window_width;
-	bool Timer_finished;
-	bool Alarm_finished;
-	bool status_check;
+{	bool Update_window;
+	unsigned int window_height, window_width;
+	enum status{paused, running, zeroed, setting}Countdown_status;
+	enum output_stat{countdown, clock}Output_status;
 	sf::Color  Countdown_colour;
 };
 
 namespace Timer
-{	sf::Clock Timer;
-	enum Timer_state{Running, Paused}Current_state;
+{	std::string font_path;
+	sf::Clock Timer;
 	sf::Font Display_font;
 	sf::Text Display_text;	
 	Time_Structure Current_time(45);
-};
-
-namespace Go_button
-{	sf::Texture Go_button_tex_active;
-	sf::Texture Go_button_tex_inactive;
-	sf::Sprite Go_button_sprite;
-};
-
-namespace Power_button
-{	sf::Texture Power_button_tex;
-	sf::Sprite Power_button_sprite;
 };
 
 namespace Alarm
 {	std::string Play_path;
 	sf::SoundBuffer buffer;
 	sf::Sound output;	
+};
+
+enum Button_status{active, inactive};
+
+namespace Go_Button
+{	SFML_Button Go_button;
+	Button_status status;
+	void Switch_status();
+	void Left_click();
+};
+
+namespace Power_Button
+{	SFML_Button Power_button;
+	Button_status status;
+	void Switch_status();
+	void Left_click();
 };

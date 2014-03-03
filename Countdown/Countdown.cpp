@@ -1,7 +1,6 @@
 // Countdown //////////////////////////////////////////////////////////////
 // by John Lawson /////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
-#include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
 #include <time.h>
@@ -9,31 +8,49 @@
 #include "Time_Structure.h"
 #include "Program_Elements.h"
 
+#define version "1.104"
 
 int Countdown_clock(unsigned int countdown);
 void Timer_Alarm();
 void Init_program_stuff(unsigned int countdown);
-void Set_colour(std::string colour);
+void Set_colour(int red, int green, int blue);
 std::string Play_path_at_mode(std::string mode, std::string Alarm_path, std::string Timer_path);
 int Load_program_assets();
 
 int main()
 {	// Resume the coutdown!!!
 	TTxt_File Arguments(Cmd_dashdash::Get_directory(), "\\Countdown\\CountdownArguments.cfg");
-	if(Arguments.Get_file_index() < 5)
-	{	Cmd_dashdash::Log_exception("Error 3: Incomplete Config file.");
-		return 3;
+	if(Arguments.Get_file_index() < 8)
+	{	Cmd_dashdash::Log_exception("Error 5: Incomplete Config file.");
+		return 5;
 	}
 	else
 	{	unsigned int number = std::stoi(Arguments.Access_data(1));
 		std::string mode = Arguments.Access_data(2);
 		Alarm::Play_path = Play_path_at_mode(mode, Arguments.Access_data(4), Arguments.Access_data(3));
-		std::string colour = Arguments.Access_data(5);
+		Timer::font_path = Arguments.Access_data(5);
+		int red = std::stoi(Arguments.Access_data(6));
+		int green = std::stoi(Arguments.Access_data(7));
+		int blue = std::stoi(Arguments.Access_data(8));
+		Set_colour(red, green, blue);
 		Arguments.~TTxt_File();
-		Set_colour(colour);
 		return Countdown_clock(number);
 	}
 }	// Was yo cooler than yall, due to being a wet bag now, so they lit this candle & went to space today. Dawg.
+
+void Init_program_stuff(unsigned int countdown)
+{		countdown::Update_window = true;
+		countdown::Countdown_status = countdown::status::paused;
+		countdown::Output_status = countdown::output_stat::countdown;
+		Timer::Current_time.Set_Time(countdown);		
+		Timer::Display_text.setFont(Timer::Display_font);
+		Timer::Display_text.setCharacterSize(80);
+		Timer::Display_text.setColor(countdown::Countdown_colour);
+		Timer::Display_text.setString(Timer::Current_time.Get_time_as_string());
+		Timer::Display_text.setPosition(0, -12);
+		countdown::window_height = 86;
+		countdown::window_width = 400;	
+}
 
 std::string Play_path_at_mode(std::string mode, std::string Alarm_path, std::string Timer_path)
 {	std::transform(mode.begin (), mode.end (), mode.begin (), toupper);
@@ -45,95 +62,57 @@ std::string Play_path_at_mode(std::string mode, std::string Alarm_path, std::str
 	}
 }
 
-void Set_colour(std::string colour)
-{	std::transform(colour.begin (), colour.end (), colour.begin (), toupper);
-	if(colour == "BLUE")
-	{	countdown::Countdown_colour = sf::Color::Blue;
-	}
-	else if(colour == "GREEN")
-	{	countdown::Countdown_colour = sf::Color::Green;
-	}
-	else if(colour == "MAGENTA")
-	{	countdown::Countdown_colour = sf::Color::Magenta;
-	}
-	else if(colour == "CYAN")
-	{	countdown::Countdown_colour = sf::Color::Cyan;
-	}
-	else if(colour == "RED")
-	{	countdown::Countdown_colour = sf::Color::Red;
-	}
-	else if(colour == "YELLOW")
-	{	countdown::Countdown_colour = sf::Color::Yellow;
-	}
+void Set_colour(int red, int green, int blue)
+{	countdown::Countdown_colour = sf::Color(red, green, blue, 255);
+	Timer::Display_text.setColor(countdown::Countdown_colour);
+	Go_Button::Go_button.Button_sprite.setColor(countdown::Countdown_colour);
+	Power_Button::Power_button.Button_sprite.setColor(countdown::Countdown_colour);
 }
 
 int Load_program_assets()
-{	std::string Offset = "\\Data\\Assets\\";
-	if(countdown::Countdown_colour == sf::Color::Green)
-	{	Offset.append("Green\\");
-	}
-	else if(countdown::Countdown_colour == sf::Color::Blue)
-	{	Offset.append("Blue\\");
-	}
-	else if(countdown::Countdown_colour == sf::Color::Cyan)
-	{	Offset.append("Cyan\\");
-	}
-	else if(countdown::Countdown_colour == sf::Color::Magenta)
-	{	Offset.append("Magenta\\");
-	}
-	else if(countdown::Countdown_colour == sf::Color::Red)
-	{	Offset.append("Red\\");
-	}
-	else if(countdown::Countdown_colour == sf::Color::Yellow)
-	{	Offset.append("Yellow\\");
-	}
-
-	if (!(Timer::Display_font.loadFromFile(Cmd_dashdash::Get_directory().append("\\Data\\Haettenschweiler.ttf"))))
+{	std::string Offset = "\\Data\\Assets\\UI\\";
+	if (!(Timer::Display_font.loadFromFile(Cmd_dashdash::Get_directory().append("\\Data\\" + Timer::font_path))))
 	{	std::cout << "Unable to load font" << std::endl;
 		Cmd_dashdash::Log_exception("Error 1: Unable to load font");
 		return 1;
 	}
 	else
-	{	if ((!(Go_button::Go_button_tex_active.loadFromFile(Cmd_dashdash::Get_directory().append(Offset + ("Go_button_activated.png")))))||
-			((!(Power_button::Power_button_tex.loadFromFile(Cmd_dashdash::Get_directory().append(Offset + ("Power_button_activated.png"))))))||
-			(!(Go_button::Go_button_tex_inactive.loadFromFile(Cmd_dashdash::Get_directory().append(Offset + ("Go_button_inactive.png"))))))
-		{	std::cout << "Unable to load texture at" << Offset << std::endl;
-			Cmd_dashdash::Log_exception(("Error 2: Unable to load button texture"));
+	{	if(!Go_Button::Go_button.Set_texture((Cmd_dashdash::Get_directory().append(Offset + ("Go_button.png"))), box_coordinates(0, 0, (20), 40)))
+		{	Cmd_dashdash::Log_exception(("Error 2: Unable to load go button texture"));
 			return 2;
 		}
 		else
-		{	return 0;
+		{	Go_Button::Go_button.Set_parameters(box_coordinates(245, 28, 20, 40));
+			if(!Power_Button::Power_button.Set_texture((Cmd_dashdash::Get_directory().append(Offset + ("Power_button.png"))), box_coordinates(0, 0, 20, 40)))
+			{	Cmd_dashdash::Log_exception(("Error 3: Unable to load Power button texture"));
+				return 3;
+			}
+			else
+			{	Power_Button::Power_button.Set_parameters(box_coordinates(275, 28, 20, 40));
+				if (!Alarm::buffer.loadFromFile(Cmd_dashdash::Get_directory().append("\\Countdown\\Audio\\").append(Alarm::Play_path)))
+				{	Cmd_dashdash::Log_exception(("Error 4: Unable to load Audio file"));
+					return 4;
+				}
+				else
+				{	return 0;
+				}
+			}
 		}
 	}
 }
 
-void Init_program_stuff(unsigned int countdown)
-{		countdown::Timer_finished = false;
-		countdown::Alarm_finished = false;
-		countdown::status_check = true;
-		Timer::Current_state = Timer::Paused;
-		Timer::Current_time.Set_Time(countdown);		
-		Timer::Display_text.setFont(Timer::Display_font);
-		Timer::Display_text.setCharacterSize(80);
-		Timer::Display_text.setColor(countdown::Countdown_colour);
-		Timer::Display_text.setString(Timer::Current_time.Get_time_as_string());
-		Timer::Display_text.setPosition(0, -20);
-		Go_button::Go_button_sprite.setTexture(Go_button::Go_button_tex_active);
-		Go_button::Go_button_sprite.setPosition(245, 20);
-		Power_button::Power_button_sprite.setTexture(Power_button::Power_button_tex);
-		Power_button::Power_button_sprite.setPosition(275, 20);
-		countdown::window_height = 70;
-		countdown::window_width = 300;	
-}
-
 int Countdown_clock(unsigned int countdown)
-{	int load;
+{	Go_Button::status = active;
+	Power_Button::status = active;
+	int load;
 	if((load = Load_program_assets()) != 0)
 	{	return load;
 	}
 	else
 	{	Init_program_stuff(countdown);
-		sf::RenderWindow window(sf::VideoMode(countdown::window_width, countdown::window_height), "Countdown Timer");
+		std::string title = ("Countdown ");
+		title.append(version);
+		sf::RenderWindow window(sf::VideoMode(countdown::window_width, countdown::window_height), title);
 		while (window.isOpen())
 		{	sf::Event event;
 			// Event Handling ///////////////////////////////////////////////////////////////////////////////////////////
@@ -141,86 +120,148 @@ int Countdown_clock(unsigned int countdown)
 			{	if(event.type == sf::Event::Closed)
 				{	window.close();
 					return 0;
-				}	
+				}	// General SFML Events
 				else if(event.type == sf::Event::KeyPressed)
 				{	if(event.key.code == sf::Keyboard::Q)
 					{	window.close();
 						return 0;
 					}
-				}
+					if(event.key.code == sf::Keyboard::Z)
+					{	countdown::Countdown_status = countdown::status::zeroed;
+						Timer::Current_time.Set_Time(0);
+					}
+					if(event.key.code == sf::Keyboard::R)
+					{	countdown::Countdown_status = countdown::status::running;
+					}
+					if(event.key.code == sf::Keyboard::P)
+					{	countdown::Countdown_status = countdown::status::paused;
+					}
+				}	// Keypress Events
 				else if(event.type == sf::Event::MouseButtonPressed)
 				{	if(event.mouseButton.button == sf::Mouse::Left)
-					{	if((event.mouseButton.y >= 20)&&(event.mouseButton.y <= 60))
-						{	if((event.mouseButton.x >= 245)&&(event.mouseButton.x < 265))
-							{	if(countdown::Alarm_finished == false)
-								{	if(Timer::Current_state == Timer::Paused)
-									{	Timer::Timer.restart();
-										Timer::Timer;
-										Timer::Current_state = Timer::Running;
-									}
-								}
-							}	// The "Go" button
-							else if((event.mouseButton.x >= 275)&&(event.mouseButton.x < 295))
-							{	window.close();
-								return 0;
-							}	// The "Power off" button
-						}
+					{	if(Go_Button::Go_button.Check_for_point_in_coordinates(event.mouseButton.x, event.mouseButton.y) == true)
+						{	Go_Button::Left_click();	
+						}	// The "Go" button
+						else if(Power_Button::Power_button.Check_for_point_in_coordinates(event.mouseButton.x, event.mouseButton.y) == true)
+						{	Power_Button::Left_click();
+							window.close();
+							return 0;
+						}	// The "Power off" button	
 					}	// All left-Mouse click events
 				}
-			}	window.setSize(sf::Vector2u(countdown::window_width, countdown::window_height));
+			}	// All events in the main window
 			// Timer State Updates //////////////////////////////////////////////////////////////////////////////////////
-			switch(countdown::Alarm_finished)
-			{	case false:
-				{	switch(Timer::Current_state)
-					{	case (Timer::Paused):
-						{	Timer::Display_text.setString(Timer::Current_time.Get_time_as_string());
-							Go_button::Go_button_sprite.setTexture(Go_button::Go_button_tex_active);
-							break;
-						}
-						case (Timer::Running):
-						{	Timer::Display_text.setString(Timer::Current_time.Get_time_as_string());
-							Go_button::Go_button_sprite.setTexture(Go_button::Go_button_tex_inactive);
-							if(Timer::Timer.getElapsedTime().asSeconds() > 1)
-							{	Timer::Current_time.Change_by_dt(-(Timer::Timer.getElapsedTime().asSeconds()));
-								Timer::Timer.restart();
-							}
-							else if((Timer::Current_time.Get_time()) == 0)
-							{	Timer::Current_time.Set_Time(0);
-								Timer::Current_state = Timer::Paused;
-								countdown::Timer_finished = true;
-							}
-							break;
-						}
-					}
+			switch(countdown::Countdown_status)
+			{	case (countdown::status::paused):
+				{	break;
+					// Nothing to do here
 				}
-				case true:
-				{	if(countdown::status_check == true)
-					{	Go_button::Go_button_sprite.setTexture(Go_button::Go_button_tex_inactive);
-						countdown::status_check = false;
+				case (countdown::status::running):
+				{	if(Timer::Timer.getElapsedTime().asMilliseconds() >= 1000)
+					{	Timer::Current_time.Change_by_dt(-(Timer::Timer.getElapsedTime().asSeconds()));
+						countdown::Update_window = true;
+						Timer::Timer.restart();
 					}
+					else if((Timer::Current_time.Get_time()) == 0)
+					{	Timer::Current_time.Set_Time(0);
+						Timer_Alarm();
+						countdown::Countdown_status = countdown::status::zeroed;
+					}	break;
+				}
+				case (countdown::status::setting):
+				{	break;
+					// Nothing to do here
+				}
+				case (countdown::status::zeroed):
+				{	break;
+					// Nothing to do here
+				}
+			}
+			switch(countdown::Output_status)
+			{	case (countdown::output_stat::clock):
+				{	Timer::Display_text.setString("");	// Need the time sheet in binder for this
+					break;
+				}
+				case (countdown::output_stat::countdown):
+				{	Timer::Display_text.setString(Timer::Current_time.Get_time_as_string());
+					break;
 				}
 			}
 			// Window Redrawing /////////////////////////////////////////////////////////////////////////////////////////
-			window.clear();
-			window.draw(Timer::Display_text);
-			window.draw(Go_button::Go_button_sprite);
-			window.draw(Power_button::Power_button_sprite);
-			if ((countdown::Timer_finished == true)&&(countdown::Alarm_finished == false))
-			{	Timer_Alarm();
-				countdown::Alarm_finished = true;				
-			}	window.display();
+			if(countdown::Update_window == true)
+			{	window.clear();
+				window.setSize(sf::Vector2u(countdown::window_width, countdown::window_height));
+				window.draw(Timer::Display_text);
+				window.draw(Go_Button::Go_button.Button_sprite);
+				window.draw(Power_Button::Power_button.Button_sprite);
+				countdown::Update_window = false;
+				window.display();
+			}
 		}
 	}
 }
 
+void Go_Button::Left_click()
+{	switch(countdown::Countdown_status)
+	{	case countdown::status::paused:
+		{	Timer::Timer.restart();
+			Timer::Timer;
+			countdown::Countdown_status = countdown::status::running;
+			Go_Button::Switch_status();
+			countdown::Update_window = true;
+			break;
+		}
+		case countdown::status::zeroed:
+		{	Timer_Alarm();
+			break;
+		}
+		case countdown::status::running:
+		{	// Do nothing for now
+			break;
+		}
+		case countdown::status::setting:
+		{	// Do nothing for now
+			break;
+		}
+	}
+}
+
+void Go_Button::Switch_status()
+{	switch(Go_Button::status)
+	{	case active:
+		{	Go_Button::status = Button_status::inactive;
+			Go_Button::Go_button.Set_texture_coordinates(box_coordinates(20, 0, 20, 40));
+			break;
+		}
+		case inactive:
+		{	Go_Button::status = Button_status::active;
+			Go_Button::Go_button.Set_texture_coordinates(box_coordinates(0, 0, 20, 40));
+			break;
+		}
+	}	
+}
+
+void Power_Button::Left_click()
+{
+}
+
+void Power_Button::Switch_status()
+{	switch(Power_Button::status)
+	{	case active:
+		{	Power_Button::status = Button_status::inactive;
+			Power_Button::Power_button.Set_texture_coordinates(box_coordinates(20, 0, 20, 40));
+			break;
+		}
+		case inactive:
+		{	Power_Button::status = Button_status::active;
+			Power_Button::Power_button.Set_texture_coordinates(box_coordinates(0, 0, 20, 40));
+			break;
+		}
+	}	
+}
+
 void Timer_Alarm()
-{	if (!Alarm::buffer.loadFromFile(Cmd_dashdash::Get_directory().append("\\Countdown\\Audio\\").append(Alarm::Play_path)))
-	{	Cmd_dashdash::Newline();
-		Cmd_dashdash::Print_line("Unable to Load Audio");
-	}
-	else
-	{	Alarm::output.setVolume(100);
-		Alarm::output.setBuffer(Alarm::buffer);
-		Alarm::output.play();
-	}
+{	Alarm::output.setVolume(100);
+	Alarm::output.setBuffer(Alarm::buffer);
+	Alarm::output.play();
 }
