@@ -1,5 +1,0 @@
-#!/bin/bash
-
-g++ Countdown.o -o Countdown -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
-
-exit 0
