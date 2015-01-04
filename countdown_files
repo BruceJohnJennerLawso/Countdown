@@ -1,5 +1,0 @@
-#!/bin/bash
-
-geany Countdown.cpp 'countdown_files' &
-
-exit 0
