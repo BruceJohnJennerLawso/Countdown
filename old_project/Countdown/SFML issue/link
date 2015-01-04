@@ -1,0 +1,5 @@
+#!/bin/bash
+
+g++ Issue.o -o Issue -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+
+exit 0

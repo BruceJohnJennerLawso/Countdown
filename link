@@ -1,0 +1,5 @@
+#!/bin/bash
+
+g++ Time_Structure.o VectorVictor2.o SFML_Tools.o SFML_Button.o Countdown_clock.o Countdown.o -o Countdown -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+
+exit 0

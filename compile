@@ -1,0 +1,5 @@
+#!/bin/bash
+
+g++ -c -std=c++0x Time_Structure.cpp VectorVictor2.cpp SFML_Tools.cpp SFML_Button.cpp Countdown_clock.cpp Countdown.cpp
+
+exit 0
